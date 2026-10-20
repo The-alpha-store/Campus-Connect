@@ -1,0 +1,5 @@
+# Changes to these paths need review from the owner (turn on "Require review from Code Owners" in branch protection).
+# Replace @YOUR-GITHUB-USERNAME with your own username.
+/.github/            @YOUR-GITHUB-USERNAME
+/supabase/           @YOUR-GITHUB-USERNAME
+/app/build.gradle.kts @YOUR-GITHUB-USERNAME

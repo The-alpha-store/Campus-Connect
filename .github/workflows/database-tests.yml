@@ -1,0 +1,39 @@
+# Runs all SQL migrations and the security (RLS) tests on a fresh PostgreSQL.
+# Any failed test fails the build, so a broken security rule can never be merged.
+name: Database tests
+
+on:
+  push:
+    branches: [main]
+    paths: ["supabase/**", ".github/workflows/database-tests.yml"]
+  pull_request:
+    paths: ["supabase/**", ".github/workflows/database-tests.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  sql:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install psql client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Run migrations and tests
+        run: bash supabase/tests/run_tests.sh

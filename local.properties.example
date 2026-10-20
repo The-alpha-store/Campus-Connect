@@ -1,0 +1,18 @@
+# Copy this file to  local.properties  (git-ignored) and fill in your own values.
+# Android Studio also writes sdk.dir here automatically; leave that line alone.
+
+# --- Supabase (Project Settings > API) ---
+SUPABASE_URL=https://YOUR-PROJECT-REF.supabase.co
+SUPABASE_ANON_KEY=YOUR-PUBLIC-ANON-OR-PUBLISHABLE-KEY
+
+# --- Firebase (optional, only for instant push; see docs in SETUP_GUIDE.md part 3) ---
+FIREBASE_APP_ID=1:000000000000:android:0000000000000000
+FIREBASE_API_KEY=AIza...
+FIREBASE_PROJECT_ID=your-firebase-project-id
+FIREBASE_SENDER_ID=000000000000
+
+# --- Release signing (optional, only for building a signed release on your own PC) ---
+# KEYSTORE_PATH=C:/keys/campusconnect-release.jks
+# KEYSTORE_PASSWORD=
+# KEY_ALIAS=campusconnect
+# KEY_PASSWORD=

@@ -1,0 +1,31 @@
+# Build output
+*.iml
+.gradle/
+/build/
+/app/build/
+/captures
+.externalNativeBuild
+.cxx
+*.apk
+*.aab
+.DS_Store
+
+# IDE
+/.idea/
+.vscode/
+
+# SECRETS - never commit any of these
+/local.properties
+*.jks
+*.keystore
+*.p12
+keystore.properties
+google-services.json
+*service-account*.json
+firebase-adminsdk*.json
+.env
+.env.*
+!.env.example
+supabase/.env
+supabase/.temp/
+node_modules/
