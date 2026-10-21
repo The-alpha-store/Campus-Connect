@@ -3,6 +3,7 @@ package com.campusconnect.app.ui
 import com.campusconnect.app.tr
 import com.campusconnect.app.trf
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
