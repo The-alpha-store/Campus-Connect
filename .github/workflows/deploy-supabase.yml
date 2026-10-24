@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: deploy-supabase
+  group: campus-connect-deploy-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
@@ -26,8 +26,6 @@ jobs:
     needs: checks
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # Create an environment named "production" in the repository settings and add required
-    # reviewers there, so a person approves every production change.
     environment: production
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}

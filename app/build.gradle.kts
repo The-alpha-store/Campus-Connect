@@ -22,9 +22,19 @@ android {
     // The demo entry (persona switcher, sample data) can only be reached when this is true.
     // A production build sets it to false and the demo disappears from the app.
     // Demo personas are disabled in the default build. Turn on only for local UI previews.
-    buildConfigField("boolean", "DEMO_MODE_ENABLED", providers.gradleProperty("DEMO_MODE_ENABLED").orElse("false").get())
-    val supabaseUrl = providers.gradleProperty("SUPABASE_URL").orElse(providers.environmentVariable("SUPABASE_URL")).orElse("").get()
-    val supabaseAnonKey = providers.gradleProperty("SUPABASE_ANON_KEY").orElse(providers.environmentVariable("SUPABASE_ANON_KEY")).orElse("").get()
+    buildConfigField(
+      "boolean",
+      "DEMO_MODE_ENABLED",
+      providers.gradleProperty("DEMO_MODE_ENABLED").orElse("false").get()
+    )
+    val supabaseUrl = providers.gradleProperty("SUPABASE_URL")
+      .orElse(providers.environmentVariable("SUPABASE_URL"))
+      .orElse("")
+      .get()
+    val supabaseAnonKey = providers.gradleProperty("SUPABASE_ANON_KEY")
+      .orElse(providers.environmentVariable("SUPABASE_ANON_KEY"))
+      .orElse("")
+      .get()
     buildConfigField("String", "SUPABASE_URL", "\"${supabaseUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
     buildConfigField("String", "SUPABASE_ANON_KEY", "\"${supabaseAnonKey.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
 

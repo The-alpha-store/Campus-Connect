@@ -7,10 +7,10 @@ on:
   pull_request:
 
 permissions:
-  contents: read          # least privilege: this workflow only needs to read the code
+  contents: read
 
 concurrency:
-  group: android-ci-${{ github.ref }}
+  group: campus-connect-ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -29,14 +29,12 @@ jobs:
           java-version: 17
 
       - uses: gradle/actions/setup-gradle@v4
+
       - name: Make gradlew executable
         run: chmod +x gradlew
 
       - name: Build debug APK
         env:
-          # These come from GitHub: Settings > Secrets and variables > Actions.
-          # Pull requests from forks do not receive secrets; the build then shows the
-          # "not configured" screen but still compiles, which is what we want to check.
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}

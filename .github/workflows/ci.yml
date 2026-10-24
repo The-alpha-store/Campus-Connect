@@ -7,12 +7,12 @@ on:
   pull_request:
   workflow_call:
 
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
-
 permissions:
   contents: read
+
+concurrency:
+  group: campus-connect-ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   android:
@@ -27,12 +27,10 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      # The repository has no gradlew script, so use the Gradle version the project pins.
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "9.3.1"
 
-      # build.gradle.kts signs debug builds with ./debug.keystore, which is not committed.
       - name: Create a throwaway debug keystore
         run: |
           keytool -genkeypair -v -keystore debug.keystore \
@@ -79,15 +77,12 @@ jobs:
         with:
           version: latest
 
-      # Only what the database tests need: Postgres, Auth (creates auth.users) and Storage.
       - name: Start local Supabase
         run: supabase start -x realtime,studio,imgproxy,edge-runtime,logflare,vector,mailpit,postgres-meta,supavisor
 
-      # Applies supabase/migrations/* and then supabase/seed.sql from scratch.
       - name: Apply migrations and seed from scratch
         run: supabase db reset
 
-      # The migration must be safe to run again on a database that already has it.
       - name: Migration is idempotent
         run: |
           for f in supabase/migrations/*.sql; do
