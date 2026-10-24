@@ -118,6 +118,7 @@ fun AuthGate(viewModel: CampusViewModel) {
     page = next
   }
 
+  // Back returns to the sign-in page from any other page instead of closing the app.
   BackHandler(enabled = page != AuthPage.SIGN_IN) { go(AuthPage.SIGN_IN) }
 
   fun handle(outcome: AuthOutcome) {
@@ -136,7 +137,7 @@ fun AuthGate(viewModel: CampusViewModel) {
         )
         go(AuthPage.SIGN_IN)
       }
-      is AuthOutcome.Success -> Unit
+      is AuthOutcome.Success -> Unit // the app switches screens by itself
     }
   }
 
@@ -150,6 +151,7 @@ fun AuthGate(viewModel: CampusViewModel) {
       .padding(horizontal = 24.dp, vertical = 12.dp)
       .testTag("auth_gate")
   ) {
+    // Top row: back (when not on the first page) and the language switch.
     Row(
       modifier = Modifier.fillMaxWidth().height(44.dp),
       verticalAlignment = Alignment.CenterVertically,
@@ -330,6 +332,7 @@ private fun SignUpPage(
   var confirm by remember { mutableStateOf("") }
 
   val programmes = viewModel.programmesFor(universityId)
+  // A campus with set-up programmes offers them as choices; otherwise the person just types theirs.
   val chosenProgramme = if (programmes.isNotEmpty()) programme.takeIf { it in programmes } ?: "" else programme
 
   PageTitle(
@@ -340,6 +343,7 @@ private fun SignUpPage(
     )
   )
 
+  // 1. Which university: all your data lives with it, and only its registry approves you.
   PickerField(
     label = viewModel.t("Your university", "Chuo chako"),
     value = universities.firstOrNull { it.id == universityId }?.let { "${it.name} (${it.shortName})" },
@@ -365,6 +369,7 @@ private fun SignUpPage(
   AuthField(name, { name = it }, viewModel.t("Full name", "Jina kamili"), "auth_name", icon = Icons.Default.Person)
   Spacer(modifier = Modifier.height(10.dp))
 
+  // 2. The registration number comes first: it is your identity at your university.
   AuthField(
     number, { number = it },
     if (isStaff) viewModel.t("Staff number", "Namba ya mfanyakazi") else viewModel.t("Registration number", "Namba ya usajili"),
@@ -376,6 +381,7 @@ private fun SignUpPage(
   if (isStaff) {
     AuthField(programme, { programme = it }, viewModel.t("Department", "Idara"), "auth_department", icon = Icons.Default.Business)
   } else if (universityId.isEmpty()) {
+    // The programme list appears once a campus is chosen.
   } else if (programmes.isNotEmpty()) {
     PickerField(
       label = viewModel.t("Programme", "Programu"),
@@ -399,6 +405,7 @@ private fun SignUpPage(
   }
   Spacer(modifier = Modifier.height(10.dp))
 
+  // 3. Email is only for codes and password reset. Any address you can open will do.
   AuthField(
     email, { email = it }, viewModel.t("Email", "Barua pepe"), "auth_signup_email",
     icon = Icons.Default.Email, keyboard = KeyboardType.Email,
@@ -560,12 +567,14 @@ private fun ResetPage(
 
 // ---------- Waiting room ----------
 
+/** What a brand-new (or switched-off) account sees: nothing but its own status. */
 @Composable
 fun WaitingRoomScreen(viewModel: CampusViewModel) {
   val user by viewModel.currentUser.collectAsState()
   val language by viewModel.appLanguage.collectAsState()
   val notActive = user.status == AccountStatus.REJECTED
 
+  // A slow breathing pulse says "something is happening" without a spinner.
   val pulse = rememberInfiniteTransition(label = "waiting_pulse")
   val pulseAlpha by pulse.animateFloat(
     initialValue = 0.45f,
@@ -649,6 +658,7 @@ fun WaitingRoomScreen(viewModel: CampusViewModel) {
 
 // ---------- Demo banner ----------
 
+/** A slim, permanent strip so nobody mistakes sample data for real data. */
 @Composable
 fun DemoBanner(viewModel: CampusViewModel) {
   Box(
@@ -751,6 +761,7 @@ private fun LanguageOption(label: String, selected: Boolean, tag: String, onClic
   }
 }
 
+/** A choice that fills its row: used for Student/Staff and for the programme list. */
 @Composable
 private fun Segment(label: String, selected: Boolean, tag: String, modifier: Modifier, onClick: () -> Unit) {
   Surface(
@@ -823,6 +834,7 @@ private fun AuthField(
   )
 }
 
+/** The six-digit code: large, centred, easy to read back from an email. */
 @Composable
 private fun CodeField(value: String, onChange: (String) -> Unit, tag: String, onDone: (() -> Unit)?) {
   val focus = LocalFocusManager.current
@@ -864,6 +876,7 @@ private fun ErrorLine(error: String?) {
   }
 }
 
+/** Three-segment strength bar plus the single most useful tip. */
 @Composable
 private fun PasswordHint(viewModel: CampusViewModel, password: String, email: String) {
   if (password.isEmpty()) return
