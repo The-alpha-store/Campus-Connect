@@ -253,7 +253,7 @@ jobs:
         run: gradle --no-daemon :app:assembleRelease :app:bundleRelease
 
       - name: Publish GitHub release for version tag
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             app/build/outputs/bundle/release/*.aab
