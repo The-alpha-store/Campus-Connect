@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,6 +40,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -66,10 +68,12 @@ import com.example.ui.theme.WarmAmber
 import com.example.ui.theme.WarmAmberLight
 import com.example.viewmodel.CampusViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MaterialsScreen(
   viewModel: CampusViewModel,
   onOpenUploadDialog: () -> Unit,
+  onOpenProcessedDocuments: () -> Unit,
   onPreviewDocument: (AttachmentFile, authorName: String, courseCode: String) -> Unit,
   modifier: Modifier = Modifier
 ) {
@@ -112,6 +116,23 @@ fun MaterialsScreen(
         }
       }
 
+      Spacer(modifier = Modifier.height(10.dp))
+      Card(
+        onClick = onOpenProcessedDocuments,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        modifier = Modifier.fillMaxWidth()
+      ) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+          Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+          Spacer(Modifier.width(10.dp))
+          Column(Modifier.weight(1f)) {
+            Text("AI Summaries (Room DB)", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+            Text("Browse saved analyses offline", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
+          }
+          Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Open summaries", tint = MaterialTheme.colorScheme.onPrimaryContainer)
+        }
+      }
       Spacer(modifier = Modifier.height(14.dp))
 
       OutlinedTextField(

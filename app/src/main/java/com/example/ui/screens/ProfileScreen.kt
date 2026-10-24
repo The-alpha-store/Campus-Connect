@@ -30,9 +30,16 @@ import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.SwitchAccount
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaultsDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -60,7 +67,11 @@ import com.example.data.model.AppLanguage
 import com.example.data.model.Role
 import com.example.data.model.UserProfile
 import com.example.ui.components.StatusBadge
+import com.example.ui.theme.AppThemeMode
+import com.example.ui.theme.AppThemeSettings
 import com.example.ui.theme.DangerRed
+import com.example.ui.theme.AppThemeMode
+import com.example.ui.theme.AppThemeSettings
 import com.example.ui.theme.DangerRedLight
 import com.example.ui.theme.DeepBlue
 import com.example.ui.theme.SuccessGreen
@@ -68,6 +79,7 @@ import com.example.ui.theme.WarmAmber
 import com.example.ui.theme.WarmAmberLight
 import com.example.viewmodel.CampusViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
   viewModel: CampusViewModel,
@@ -209,6 +221,31 @@ fun ProfileScreen(
               onClick = { viewModel.switchDemoPersona(persona) },
               tag = "select_persona_${persona.id}"
             )
+          }
+        }
+      }
+    }
+
+    item {
+      Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        modifier = Modifier.fillMaxWidth()
+      ) {
+        Column(Modifier.fillMaxWidth().padding(16.dp)) {
+          Text("Appearance", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+          Text("Choose how CampusConnect looks", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+          Spacer(Modifier.height(12.dp))
+          SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            AppThemeMode.values().forEachIndexed { index, mode ->
+              SegmentedButton(
+                selected = AppThemeSettings.mode == mode,
+                onClick = { AppThemeSettings.set(context, mode) },
+                shape = SegmentedButtonDefaults.itemShape(index = index, count = AppThemeMode.values().size)
+              ) {
+                Text(when (mode) { AppThemeMode.SYSTEM -> "System"; AppThemeMode.LIGHT -> "Light"; AppThemeMode.DARK -> "Dark" }, style = MaterialTheme.typography.labelSmall)
+              }
+            }
           }
         }
       }

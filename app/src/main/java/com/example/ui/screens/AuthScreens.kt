@@ -296,7 +296,7 @@ private fun SignInPage(
     modifier = Modifier.fillMaxWidth().height(52.dp).testTag("auth_create_btn")
   ) { Text(viewModel.t("Create account", "Fungua akaunti"), fontWeight = FontWeight.SemiBold) }
 
-  if (BuildConfig.DEMO_MODE_ENABLED.toBoolean()) {
+  if (BuildConfig.DEMO_MODE_ENABLED) {
     Spacer(modifier = Modifier.height(20.dp))
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
       Text(

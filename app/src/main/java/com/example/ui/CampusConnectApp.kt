@@ -30,6 +30,12 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.UploadFile
+import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.ui.platform.LocalContext
+import com.example.ui.theme.AppThemeSettings
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -88,6 +94,7 @@ import com.example.ui.screens.AnnouncementsScreen
 import com.example.ui.screens.DeadlinesScreen
 import com.example.ui.screens.HomeScreen
 import com.example.ui.screens.MaterialsScreen
+import com.example.ui.screens.ProcessedDocumentsScreen
 import com.example.ui.screens.NotificationsScreen
 import com.example.ui.screens.ProfileScreen
 import com.example.ui.screens.SubmissionsScreen
@@ -125,6 +132,8 @@ fun CampusConnectApp(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CampusMainApp(viewModel: CampusViewModel) {
+  val context = LocalContext.current
+  val systemDark = isSystemInDarkTheme()
   val isDemo by viewModel.isDemoMode.collectAsState()
   val message by viewModel.message.collectAsState()
   val snackbarHostState = remember { SnackbarHostState() }
@@ -234,6 +243,20 @@ fun CampusMainApp(viewModel: CampusViewModel) {
             }
           },
           actions = {
+            IconButton(
+              onClick = { AppThemeSettings.toggle(context, systemDark) },
+              modifier = Modifier.testTag("top_bar_theme_toggle")
+            ) {
+              Icon(if (AppThemeSettings.mode == com.example.ui.theme.AppThemeMode.DARK || (AppThemeSettings.mode == com.example.ui.theme.AppThemeMode.SYSTEM && systemDark)) Icons.Default.LightMode else Icons.Default.DarkMode, contentDescription = "Toggle light and dark theme")
+            }
+
+            IconButton(
+              onClick = { viewModel.setTab(ScreenTab.PROCESSED_DOCUMENTS) },
+              modifier = Modifier.testTag("top_bar_processed_documents_btn")
+            ) {
+              Icon(Icons.Default.Storage, contentDescription = "AI summaries", tint = if (currentTab == ScreenTab.PROCESSED_DOCUMENTS) DeepBlue else MaterialTheme.colorScheme.onSurface)
+            }
+
             // Quick access to student coursework submissions
             IconButton(
               onClick = { viewModel.setTab(ScreenTab.SUBMISSIONS) },
@@ -390,11 +413,16 @@ fun CampusMainApp(viewModel: CampusViewModel) {
           ScreenTab.MATERIALS -> MaterialsScreen(
             viewModel = viewModel,
             onOpenUploadDialog = { showUploadDialog = true },
+            onOpenProcessedDocuments = { viewModel.setTab(ScreenTab.PROCESSED_DOCUMENTS) },
             onPreviewDocument = { file, author, course ->
               viewingDocument = file
               viewingDocAuthor = author
               viewingDocCourse = course
             }
+          )
+
+          ScreenTab.PROCESSED_DOCUMENTS -> ProcessedDocumentsScreen(
+            onAnalyzeDocument = { viewModel.setTab(ScreenTab.MATERIALS); showUploadDialog = true }
           )
 
           ScreenTab.CALENDAR -> DeadlinesScreen(

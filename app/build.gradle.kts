@@ -22,19 +22,9 @@ android {
     // The demo entry (persona switcher, sample data) can only be reached when this is true.
     // A production build sets it to false and the demo disappears from the app.
     // Demo personas are disabled in the default build. Turn on only for local UI previews.
-    buildConfigField(
-      "boolean",
-      "DEMO_MODE_ENABLED",
-      providers.gradleProperty("DEMO_MODE_ENABLED").orElse("false").get()
-    )
-    val supabaseUrl = providers.gradleProperty("SUPABASE_URL")
-      .orElse(providers.environmentVariable("SUPABASE_URL"))
-      .orElse("")
-      .get()
-    val supabaseAnonKey = providers.gradleProperty("SUPABASE_ANON_KEY")
-      .orElse(providers.environmentVariable("SUPABASE_ANON_KEY"))
-      .orElse("")
-      .get()
+    buildConfigField("boolean", "DEMO_MODE_ENABLED", providers.gradleProperty("DEMO_MODE_ENABLED").orElse("false").get())
+    val supabaseUrl = providers.gradleProperty("SUPABASE_URL").orElse(providers.environmentVariable("SUPABASE_URL")).orElse("").get()
+    val supabaseAnonKey = providers.gradleProperty("SUPABASE_ANON_KEY").orElse(providers.environmentVariable("SUPABASE_ANON_KEY")).orElse("").get()
     buildConfigField("String", "SUPABASE_URL", "\"${supabaseUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
     buildConfigField("String", "SUPABASE_ANON_KEY", "\"${supabaseAnonKey.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
 
@@ -97,7 +87,9 @@ secrets {
   ignoreList.add("FIREBASE_APPCHECK_DEBUG_TOKEN")
 }
 
+
 googleServices { missingGoogleServicesStrategy = MissingGoogleServicesStrategy.WARN }
+
 
 // Some unused dependencies are commented out below instead of being removed.
 // This makes it easy to add them back in the future if needed.
@@ -127,15 +119,6 @@ dependencies {
   implementation(libs.coil.compose)
   implementation(libs.converter.moshi)
   implementation(libs.firebase.ai)
-  // Uncomment to use Firestore:
-  // implementation(libs.firebase.firestore)
-
-  // Uncomment ALL FOUR of the following dependencies together to use Firebase Auth and Google
-  // Sign-In via Credential Manager:
-  // implementation(libs.firebase.auth)
-  // implementation(libs.androidx.credentials)
-  // implementation(libs.androidx.credentials.play.services)
-  // implementation(libs.googleid)
   implementation(libs.firebase.appcheck.recaptcha)
   implementation(libs.firebase.appcheck.debug)
   implementation(libs.kotlinx.coroutines.android)

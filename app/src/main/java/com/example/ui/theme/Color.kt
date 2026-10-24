@@ -19,17 +19,17 @@ val DangerRed = Color(0xFFDC2626)
 val DangerRedLight = Color(0xFFFEE2E2)
 
 // Light Theme surfaces
-val BackgroundLight = Color(0xFFF5F7FB)
+val BackgroundLight = Color(0xFFF8FAFC)
 val SurfaceLight = Color(0xFFFFFFFF)
-val SurfaceVariantLight = Color(0xFFE8ECF4)
+val SurfaceVariantLight = Color(0xFFF1F5F9)
 val OutlineLight = Color(0xFFCBD5E1)
 val TextPrimaryLight = Color(0xFF0F172A)
 val TextSecondaryLight = Color(0xFF64748B)
 
 // Dark Theme surfaces
-val BackgroundDark = Color(0xFF0D0F14)
-val SurfaceDark = Color(0xFF14171F)
-val SurfaceVariantDark = Color(0xFF1F2430)
+val BackgroundDark = Color(0xFF0B0E14)
+val SurfaceDark = Color(0xFF131722)
+val SurfaceVariantDark = Color(0xFF1E2536)
 val OutlineDark = Color(0xFF333C4E)
 val TextPrimaryDark = Color(0xFFF8FAFC)
 val TextSecondaryDark = Color(0xFF94A3B8)
