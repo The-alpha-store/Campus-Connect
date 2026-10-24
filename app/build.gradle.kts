@@ -19,7 +19,6 @@ android {
     versionCode = 1
     versionName = "1.0"
 
-    // Demo mode toggle: set to true only for local preview/demo builds.
     buildConfigField(
       "boolean",
       "DEMO_MODE_ENABLED",
@@ -51,13 +50,47 @@ android {
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
+  signingConfigs {
+    // Release signing only when the required keystore env vars exist
+    val releaseKeystorePath = System.getenv("KEYSTORE_PATH")
+    val releaseStorePassword = System.getenv("STORE_PASSWORD")
+    val releaseKeyPassword = System.getenv("KEY_PASSWORD")
+
+    if (!releaseKeystorePath.isNullOrBlank() &&
+        !releaseStorePassword.isNullOrBlank() &&
+        !releaseKeyPassword.isNullOrBlank()) {
+      create("release") {
+        storeFile = file(releaseKeystorePath)
+        storePassword = releaseStorePassword
+        keyAlias = "upload"
+        keyPassword = releaseKeyPassword
+      }
+    }
+
+    // Always available for local/debug builds
+    create("debugConfig") {
+      storeFile = file("${rootDir}/debug.keystore")
+      storePassword = "android"
+      keyAlias = "androiddebugkey"
+      keyPassword = "android"
+    }
+  }
+
   buildTypes {
     release {
       isCrunchPngs = false
       isMinifyEnabled = false
-      proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-      signingConfig = signingConfigs.getByName("release")
+      proguardFiles(
+        getDefaultProguardFile("proguard-android-optimize.txt"),
+        "proguard-rules.pro"
+      )
+
+      // Only assign release signing if it exists
+      if (signingConfigs.findByName("release") != null) {
+        signingConfig = signingConfigs.getByName("release")
+      }
     }
+
     debug {
       signingConfig = signingConfigs.getByName("debugConfig")
     }
