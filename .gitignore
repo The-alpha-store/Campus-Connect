@@ -1,31 +1,24 @@
-# Build output
 *.iml
-.gradle/
-/build/
-/app/build/
+.gradle
+.kotlin
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
 /captures
 .externalNativeBuild
 .cxx
-*.apk
-*.aab
-.DS_Store
+local.properties
+.env
+debug.keystore
 
-# IDE
-/.idea/
-.vscode/
-
-# SECRETS - never commit any of these
-/local.properties
+# Local credentials and machine-specific settings
+.env
+local.properties
 *.jks
 *.keystore
-*.p12
-keystore.properties
-google-services.json
-*service-account*.json
-firebase-adminsdk*.json
-.env
-.env.*
-!.env.example
-supabase/.env
-supabase/.temp/
-node_modules/

@@ -34,3 +34,12 @@ Tick every box.
 - [ ] Lecturers know not to put private information in announcements (they appear in notifications)
 - [ ] A named person can disable a compromised account (Admin: set status to suspended in `profiles`)
 - [ ] You know the leak plan (Setup Guide 7.9)
+
+## Current-repository additions
+
+- [ ] `SUPABASE_URL` and `SUPABASE_ANON_KEY` are configured for the build; never set a service-role key in Android.
+- [ ] Migrate the current `AuthRepository` and `CampusRepository` away from in-memory data before production use.
+- [ ] Confirm a Computer Science student cannot read Human Resources course materials, submissions, or private profile details by direct REST calls.
+- [ ] Confirm a CR's on-behalf-of lecturer is validated server-side for the course/audience.
+- [ ] Deploy and test `campus-wipe-files`; verify database wipe plus object removal, and retry behavior on partial Storage failure.
+- [ ] Test programme/course/room edit and delete paths with foreign-key dependencies before exposing them in the admin UI.

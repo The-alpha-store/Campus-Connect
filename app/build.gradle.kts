@@ -1,99 +1,153 @@
-import java.util.Properties
+import com.google.gms.googleservices.GoogleServicesPlugin.MissingGoogleServicesStrategy
 
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.plugin.compose")
-    id("org.jetbrains.kotlin.plugin.serialization")
+  alias(libs.plugins.android.application)
+  alias(libs.plugins.kotlin.compose)
+  alias(libs.plugins.google.devtools.ksp)
+  alias(libs.plugins.secrets)
+  alias(libs.plugins.google.services)
 }
-
-// Secrets come from local.properties (never committed) or environment variables (CI).
-val localProps = Properties().apply {
-    val f = rootProject.file("local.properties")
-    if (f.exists()) f.inputStream().use { load(it) }
-}
-fun secret(name: String): String = localProps.getProperty(name) ?: System.getenv(name) ?: ""
 
 android {
-    namespace = "com.campusconnect.app"
-    compileSdk = 35
+  namespace = "com.example"
+  compileSdk { version = release(36) { minorApiLevel = 1 } }
 
-    defaultConfig {
-        applicationId = "com.campusconnect.app"
-        minSdk = 26
-        targetSdk = 35
-        versionCode = 2
-        versionName = "0.2.0"
-        buildConfigField("String", "SUPABASE_URL", "\"${secret("SUPABASE_URL")}\"")
-        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${secret("SUPABASE_ANON_KEY")}\"")
-        // Firebase Cloud Messaging (optional). Leave blank to run without push.
-        buildConfigField("String", "FIREBASE_APP_ID", "\"${secret("FIREBASE_APP_ID")}\"")
-        buildConfigField("String", "FIREBASE_API_KEY", "\"${secret("FIREBASE_API_KEY")}\"")
-        buildConfigField("String", "FIREBASE_PROJECT_ID", "\"${secret("FIREBASE_PROJECT_ID")}\"")
-        buildConfigField("String", "FIREBASE_SENDER_ID", "\"${secret("FIREBASE_SENDER_ID")}\"")
-    }
+  defaultConfig {
+    applicationId = "com.aistudio.campusconnect.tzaapp"
+    minSdk = 24
+    targetSdk = 36
+    versionCode = 1
+    versionName = "1.0"
 
-    // Release signing. Values come from local.properties or environment variables (CI secrets).
-    // If they are missing, `assembleRelease` still works but produces an UNSIGNED apk.
-    signingConfigs {
-        create("release") {
-            val path = secret("KEYSTORE_PATH")
-            if (path.isNotBlank() && file(path).exists()) {
-                storeFile = file(path)
-                storePassword = secret("KEYSTORE_PASSWORD")
-                keyAlias = secret("KEY_ALIAS")
-                keyPassword = secret("KEY_PASSWORD")
-            }
-        }
-    }
+    // The demo entry (persona switcher, sample data) can only be reached when this is true.
+    // A production build sets it to false and the demo disappears from the app.
+    // Demo personas are disabled in the default build. Turn on only for local UI previews.
+    buildConfigField("boolean", "DEMO_MODE_ENABLED", providers.gradleProperty("DEMO_MODE_ENABLED").orElse("false").get())
+    val supabaseUrl = providers.gradleProperty("SUPABASE_URL").orElse(providers.environmentVariable("SUPABASE_URL")).orElse("").get()
+    val supabaseAnonKey = providers.gradleProperty("SUPABASE_ANON_KEY").orElse(providers.environmentVariable("SUPABASE_ANON_KEY")).orElse("").get()
+    buildConfigField("String", "SUPABASE_URL", "\"${supabaseUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
+    buildConfigField("String", "SUPABASE_ANON_KEY", "\"${supabaseAnonKey.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
 
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("release").takeIf { it.storeFile != null }
-        }
+    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+  }
+
+  // Do not remove or modify these signingConfigs. They are necessary for building, installing,
+  // and updating Android apps in AI Studio.
+  signingConfigs {
+    create("release") {
+      val keystorePath = System.getenv("KEYSTORE_PATH") ?: "${rootDir}/my-upload-key.jks"
+      storeFile = file(keystorePath)
+      storePassword = System.getenv("STORE_PASSWORD")
+      keyAlias = "upload"
+      keyPassword = System.getenv("KEY_PASSWORD")
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+    create("debugConfig") {
+      storeFile = file("${rootDir}/debug.keystore")
+      storePassword = "android"
+      keyAlias = "androiddebugkey"
+      keyPassword = "android"
     }
-    kotlinOptions { jvmTarget = "17" }
-    buildFeatures {
-        compose = true
-        buildConfig = true
+  }
+
+  buildTypes {
+    release {
+      isCrunchPngs = false
+      isMinifyEnabled = false
+      proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+      // Do not remove or modify this signingConfig assignment. It is necessary for Android apps in
+      // AI Studio.
+      signingConfig = signingConfigs.getByName("release")
     }
-    packaging {
-        resources {
-            excludes += setOf("/META-INF/{AL2.0,LGPL2.1}", "META-INF/INDEX.LIST", "META-INF/io.netty.versions.properties")
-        }
+    debug {
+      // Do not remove or modify this signingConfig assignment. It is necessary for Android apps in
+      // AI Studio.
+      signingConfig = signingConfigs.getByName("debugConfig")
     }
+  }
+  compileOptions {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+  }
+  buildFeatures {
+    compose = true
+    buildConfig = true
+  }
+  testOptions { unitTests { isIncludeAndroidResources = true } }
+  dependenciesInfo {
+    includeInApk = false
+    includeInBundle = true
+  }
 }
 
+// Configure the Secrets Gradle Plugin to use .env and .env.example files
+// to match the convention used in Web projects.
+secrets {
+  propertiesFileName = ".env"
+  defaultPropertiesFileName = ".env.example"
+  ignoreList.add("FIREBASE_APPCHECK_DEBUG_TOKEN")
+}
+
+googleServices { missingGoogleServicesStrategy = MissingGoogleServicesStrategy.WARN }
+
+// Some unused dependencies are commented out below instead of being removed.
+// This makes it easy to add them back in the future if needed.
 dependencies {
-    implementation(platform("androidx.compose:compose-bom:2024.09.03"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.material:material-icons-extended")
-    debugImplementation("androidx.compose.ui:ui-tooling")
+  implementation(platform(libs.androidx.compose.bom))
+  implementation(platform(libs.firebase.bom))
+  // implementation(libs.accompanist.permissions)
+  implementation(libs.androidx.activity.compose)
+  // implementation(libs.androidx.camera.camera2)
+  // implementation(libs.androidx.camera.core)
+  // implementation(libs.androidx.camera.lifecycle)
+  // implementation(libs.androidx.camera.view)
+  implementation(libs.androidx.compose.material.icons.core)
+  implementation(libs.androidx.compose.material.icons.extended)
+  implementation(libs.androidx.compose.material3)
+  implementation(libs.androidx.compose.ui)
+  implementation(libs.androidx.compose.ui.graphics)
+  implementation(libs.androidx.compose.ui.tooling.preview)
+  implementation(libs.androidx.core.ktx)
+  // implementation(libs.androidx.datastore.preferences)
+  implementation(libs.androidx.lifecycle.runtime.compose)
+  implementation(libs.androidx.lifecycle.runtime.ktx)
+  implementation(libs.androidx.lifecycle.viewmodel.compose)
+  implementation(libs.androidx.navigation.compose)
+  implementation(libs.androidx.room.ktx)
+  implementation(libs.androidx.room.runtime)
+  implementation(libs.coil.compose)
+  implementation(libs.converter.moshi)
+  implementation(libs.firebase.ai)
+  // Uncomment to use Firestore:
+  // implementation(libs.firebase.firestore)
 
-    implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.activity:activity-compose:1.9.2")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.6")
-    implementation("androidx.navigation:navigation-compose:2.8.2")
-    implementation("androidx.work:work-runtime-ktx:2.9.1")
-
-    implementation(platform("io.github.jan-tennert.supabase:bom:3.0.2"))
-    implementation("io.github.jan-tennert.supabase:postgrest-kt")
-    implementation("io.github.jan-tennert.supabase:auth-kt")
-    implementation("io.github.jan-tennert.supabase:storage-kt")
-    implementation("io.ktor:ktor-client-okhttp:3.0.0")
-
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
-
-    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
-    implementation("com.google.firebase:firebase-messaging")
+  // Uncomment ALL FOUR of the following dependencies together to use Firebase Auth and Google
+  // Sign-In via Credential Manager:
+  // implementation(libs.firebase.auth)
+  // implementation(libs.androidx.credentials)
+  // implementation(libs.androidx.credentials.play.services)
+  // implementation(libs.googleid)
+  implementation(libs.firebase.appcheck.recaptcha)
+  implementation(libs.firebase.appcheck.debug)
+  implementation(libs.kotlinx.coroutines.android)
+  implementation(libs.kotlinx.coroutines.core)
+  implementation(libs.logging.interceptor)
+  implementation(libs.moshi.kotlin)
+  implementation(libs.okhttp)
+  // implementation(libs.play.services.location)
+  implementation(libs.retrofit)
+  testImplementation(libs.androidx.compose.ui.test.junit4)
+  testImplementation(libs.androidx.core)
+  testImplementation(libs.androidx.junit)
+  testImplementation(libs.junit)
+  testImplementation(libs.kotlinx.coroutines.test)
+  testImplementation(libs.robolectric)
+  androidTestImplementation(platform(libs.androidx.compose.bom))
+  androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+  androidTestImplementation(libs.androidx.espresso.core)
+  androidTestImplementation(libs.androidx.junit)
+  androidTestImplementation(libs.androidx.runner)
+  debugImplementation(libs.androidx.compose.ui.test.manifest)
+  debugImplementation(libs.androidx.compose.ui.tooling)
+  "ksp"(libs.androidx.room.compiler)
+  "ksp"(libs.moshi.kotlin.codegen)
 }

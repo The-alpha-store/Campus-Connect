@@ -1,8 +1,12 @@
-## What does this change?
+## What changed?
 
-## How did you test it?
-- [ ] App builds and runs
-- [ ] SQL changes: `supabase/tests/run_tests.sh` passes
-- [ ] No secrets, keys, passwords or `local.properties` are included
+- 
 
-## Screenshots (if the screen changed)
+## Safety checklist
+
+- [ ] Android build and unit tests pass.
+- [ ] Database changes include/revise RLS tests.
+- [ ] No service-role key, password, access token, or real student data is committed.
+- [ ] Programme/course visibility remains restricted to the user's university and authorized audience.
+- [ ] Storage uploads/deletions are private and server-authorized.
+- [ ] Any new user-facing copy is reviewed in English and Kiswahili where applicable.
