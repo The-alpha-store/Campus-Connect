@@ -6,8 +6,8 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,11 +15,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.verticalScroll
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -58,8 +59,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.data.local.AppDatabase
 import com.example.data.local.ProcessedDocumentEntity
 import com.example.data.local.ProcessedDocumentRepository
 import com.example.ui.components.AppBottomSheet
@@ -67,7 +66,7 @@ import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.util.Date
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ProcessedDocumentsScreen(
   onAnalyzeDocument: () -> Unit,
@@ -112,12 +111,12 @@ fun ProcessedDocumentsScreen(
       trailingIcon = { if (query.isNotEmpty()) IconButton(onClick = { query = "" }) { Text("×") } }
     )
     Spacer(Modifier.height(8.dp))
-    androidx.compose.foundation.lazy.LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
       items(courses) { course ->
         FilterChip(selected = selectedCourse == course, onClick = { selectedCourse = course }, label = { Text(course) })
       }
     }
-    androidx.compose.foundation.lazy.LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
       items(categories) { category ->
         FilterChip(selected = selectedCategory == category, onClick = { selectedCategory = category }, label = { Text(category) })
       }
@@ -138,19 +137,30 @@ fun ProcessedDocumentsScreen(
           Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow), shape = RoundedCornerShape(20.dp)) {
             Column(Modifier.fillMaxWidth().padding(14.dp)) {
               Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.primaryContainer), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                  Icon(if (document.mimeType.contains("pdf", true)) Icons.Default.Description else Icons.Default.Article, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                Column(
+                  Modifier
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                  horizontalAlignment = Alignment.CenterHorizontally,
+                  verticalArrangement = Arrangement.Center
+                ) {
+                  Icon(
+                    if (document.mimeType.contains("pdf", true)) Icons.Default.Description else Icons.Default.Article,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                  )
                 }
                 Spacer(Modifier.width(10.dp))
                 Column(Modifier.weight(1f)) {
                   Text(document.title, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                  Text("${document.courseCode} · ${document.courseTitle}", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                  Text("${document.courseCode} • ${document.courseTitle}", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 IconButton(onClick = { confirmDelete = document }) { Icon(Icons.Default.DeleteOutline, contentDescription = "Delete summary", tint = MaterialTheme.colorScheme.error) }
               }
               Spacer(Modifier.height(10.dp))
               Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceContainer).padding(12.dp)) {
-                Text("“  SUMMARY PREVIEW", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                Text("“ SUMMARY PREVIEW", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(4.dp))
                 Text(document.extractedSummary, maxLines = 3, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodyMedium)
               }
@@ -161,7 +171,7 @@ fun ProcessedDocumentsScreen(
                 }
               }
               Spacer(Modifier.height(6.dp))
-              Text("${formatSize(document.fileSize)}  ·  ${document.pageCount} pages  ·  ${document.wordCount} words  ·  ${document.readingTimeMinutes} min read", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+              Text("${formatSize(document.fileSize)}  •  ${document.pageCount} pages  •  ${document.wordCount} words  •  ${document.readingTimeMinutes} min read", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
               Text(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(document.timestamp)), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
               Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 TextButton(onClick = { selectedDocument = document }) { Text("View full analysis") }
@@ -185,7 +195,7 @@ fun ProcessedDocumentsScreen(
     AppBottomSheet(onDismissRequest = { selectedDocument = null }) {
       Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp).verticalScroll(rememberScrollState())) {
         Text(doc.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text("${doc.courseCode} · ${doc.courseTitle}", color = MaterialTheme.colorScheme.primary)
+        Text("${doc.courseCode} • ${doc.courseTitle}", color = MaterialTheme.colorScheme.primary)
         Spacer(Modifier.height(14.dp))
         Text("Executive summary", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         Text(doc.extractedSummary, style = MaterialTheme.typography.bodyMedium)
@@ -199,7 +209,7 @@ fun ProcessedDocumentsScreen(
         Text("Study tips", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         doc.studyTips.lines().filter(String::isNotBlank).forEach { Text("•  $it", modifier = Modifier.padding(top = 4.dp)) }
         Spacer(Modifier.height(12.dp))
-        Text("Saved on this device · Room SQLite", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
+        Text("Saved on this device • Room SQLite", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
         Spacer(Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
           TextButton(onClick = {
@@ -225,7 +235,7 @@ fun ProcessedDocumentsScreen(
         Spacer(Modifier.height(16.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
           TextButton(onClick = { confirmDelete = null }) { Text("Cancel") }
-          TextButton(onClick = { scope.launch { repository.deleteLocal(doc.id); confirmDelete = null; Toast.makeText(context, "Summary deleted", Toast.LENGTH_SHORT).show() } }) { Text("Delete", color = MaterialTheme.colorScheme.error) }
+          TextButton(onClick = { scope.launch { repository.deleteLocal(doc.id); confirmDelete = null; Toast.makeText(context, "Summary deleted", Toast.LENGTH_SHORT).show() } }) { Text("Delete") }
         }
       }
     }

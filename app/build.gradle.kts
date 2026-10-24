@@ -19,34 +19,36 @@ android {
     versionCode = 1
     versionName = "1.0"
 
-    // The demo entry (persona switcher, sample data) can only be reached when this is true.
-    // A production build sets it to false and the demo disappears from the app.
-    // Demo personas are disabled in the default build. Turn on only for local UI previews.
-    buildConfigField("boolean", "DEMO_MODE_ENABLED", providers.gradleProperty("DEMO_MODE_ENABLED").orElse("false").get())
-    val supabaseUrl = providers.gradleProperty("SUPABASE_URL").orElse(providers.environmentVariable("SUPABASE_URL")).orElse("").get()
-    val supabaseAnonKey = providers.gradleProperty("SUPABASE_ANON_KEY").orElse(providers.environmentVariable("SUPABASE_ANON_KEY")).orElse("").get()
-    buildConfigField("String", "SUPABASE_URL", "\"${supabaseUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
-    buildConfigField("String", "SUPABASE_ANON_KEY", "\"${supabaseAnonKey.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
+    // Demo mode toggle: set to true only for local preview/demo builds.
+    buildConfigField(
+      "boolean",
+      "DEMO_MODE_ENABLED",
+      providers.gradleProperty("DEMO_MODE_ENABLED").orElse("false").get()
+    )
+
+    val supabaseUrl = providers.gradleProperty("SUPABASE_URL")
+      .orElse(providers.environmentVariable("SUPABASE_URL"))
+      .orElse("")
+      .get()
+
+    val supabaseAnonKey = providers.gradleProperty("SUPABASE_ANON_KEY")
+      .orElse(providers.environmentVariable("SUPABASE_ANON_KEY"))
+      .orElse("")
+      .get()
+
+    buildConfigField(
+      "String",
+      "SUPABASE_URL",
+      "\"${supabaseUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\""
+    )
+
+    buildConfigField(
+      "String",
+      "SUPABASE_ANON_KEY",
+      "\"${supabaseAnonKey.replace("\\", "\\\\").replace("\"", "\\\"")}\""
+    )
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-  }
-
-  // Do not remove or modify these signingConfigs. They are necessary for building, installing,
-  // and updating Android apps in AI Studio.
-  signingConfigs {
-    create("release") {
-      val keystorePath = System.getenv("KEYSTORE_PATH") ?: "${rootDir}/my-upload-key.jks"
-      storeFile = file(keystorePath)
-      storePassword = System.getenv("STORE_PASSWORD")
-      keyAlias = "upload"
-      keyPassword = System.getenv("KEY_PASSWORD")
-    }
-    create("debugConfig") {
-      storeFile = file("${rootDir}/debug.keystore")
-      storePassword = "android"
-      keyAlias = "androiddebugkey"
-      keyPassword = "android"
-    }
   }
 
   buildTypes {
@@ -54,25 +56,29 @@ android {
       isCrunchPngs = false
       isMinifyEnabled = false
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-      // Do not remove or modify this signingConfig assignment. It is necessary for Android apps in
-      // AI Studio.
       signingConfig = signingConfigs.getByName("release")
     }
     debug {
-      // Do not remove or modify this signingConfig assignment. It is necessary for Android apps in
-      // AI Studio.
       signingConfig = signingConfigs.getByName("debugConfig")
     }
   }
+
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
   }
+
   buildFeatures {
     compose = true
     buildConfig = true
   }
-  testOptions { unitTests { isIncludeAndroidResources = true } }
+
+  testOptions {
+    unitTests {
+      isIncludeAndroidResources = true
+    }
+  }
+
   dependenciesInfo {
     includeInApk = false
     includeInBundle = true

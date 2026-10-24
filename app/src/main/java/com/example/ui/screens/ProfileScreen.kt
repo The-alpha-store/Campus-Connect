@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,31 +21,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CloudOff
-import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.School
-import androidx.compose.material.icons.filled.Storage
-import androidx.compose.material.icons.filled.SwitchAccount
-import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.Button
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.Button
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaultsDefaults
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -52,27 +41,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
-import android.content.Intent
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.data.model.AccountStatus
 import com.example.data.model.AppLanguage
 import com.example.data.model.Role
-import com.example.data.model.UserProfile
 import com.example.ui.components.StatusBadge
 import com.example.ui.theme.AppThemeMode
 import com.example.ui.theme.AppThemeSettings
 import com.example.ui.theme.DangerRed
-import com.example.ui.theme.AppThemeMode
-import com.example.ui.theme.AppThemeSettings
-import com.example.ui.theme.DangerRedLight
 import com.example.ui.theme.DeepBlue
 import com.example.ui.theme.SuccessGreen
 import com.example.ui.theme.WarmAmber
@@ -114,7 +97,6 @@ fun ProfileScreen(
       )
     }
 
-    // User Profile Card
     item {
       Card(
         shape = RoundedCornerShape(16.dp),
@@ -188,7 +170,6 @@ fun ProfileScreen(
       }
     }
 
-    // Persona switcher: exists only in demo mode. A real account can never change its role here.
     if (isDemo) {
       item {
         Text(
@@ -210,13 +191,13 @@ fun ProfileScreen(
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
           viewModel.demoPersonas.forEach { persona ->
             val subtitle = when (persona.role) {
-              Role.ADMIN -> "Registry \u2022 approves accounts, posts campus-wide, sees the audit log"
-              Role.LECTURER -> "Lecturer \u2022 posts to own courses, sees who opened them"
-              Role.STUDENT -> "Student \u2022 sees only own courses, ticks done in private"
+              Role.ADMIN -> "Registry • approves accounts, posts campus-wide, sees the audit log"
+              Role.LECTURER -> "Lecturer • posts to own courses, sees who opened them"
+              Role.STUDENT -> "Student • sees only own courses, ticks done in private"
             }
             PersonaSelectorItem(
               title = persona.fullName,
-              subtitle = "${persona.programme ?: ""} \u2022 $subtitle",
+              subtitle = "${persona.programme ?: ""} • $subtitle",
               isSelected = user.id == persona.id,
               onClick = { viewModel.switchDemoPersona(persona) },
               tag = "select_persona_${persona.id}"
@@ -243,7 +224,14 @@ fun ProfileScreen(
                 onClick = { AppThemeSettings.set(context, mode) },
                 shape = SegmentedButtonDefaults.itemShape(index = index, count = AppThemeMode.values().size)
               ) {
-                Text(when (mode) { AppThemeMode.SYSTEM -> "System"; AppThemeMode.LIGHT -> "Light"; AppThemeMode.DARK -> "Dark" }, style = MaterialTheme.typography.labelSmall)
+                Text(
+                  when (mode) {
+                    AppThemeMode.SYSTEM -> "System"
+                    AppThemeMode.LIGHT -> "Light"
+                    AppThemeMode.DARK -> "Dark"
+                  },
+                  style = MaterialTheme.typography.labelSmall
+                )
               }
             }
           }
@@ -251,7 +239,6 @@ fun ProfileScreen(
       }
     }
 
-    // App Preferences (Language, Time, Offline)
     item {
       Text(
         text = "Preferences & Offline Sync",
@@ -266,7 +253,6 @@ fun ProfileScreen(
         modifier = Modifier.fillMaxWidth()
       ) {
         Column(modifier = Modifier.padding(14.dp)) {
-          // Language Toggle
           Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -311,7 +297,6 @@ fun ProfileScreen(
           HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
           Spacer(modifier = Modifier.height(12.dp))
 
-          // 24 Hour Toggle
           Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -345,7 +330,6 @@ fun ProfileScreen(
           HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
           Spacer(modifier = Modifier.height(12.dp))
 
-          // Offline Simulation Toggle
           Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -378,7 +362,6 @@ fun ProfileScreen(
       }
     }
 
-    // Phones signed in (real accounts only)
     if (!isDemo && devices.isNotEmpty()) {
       item {
         Text(
@@ -401,7 +384,7 @@ fun ProfileScreen(
               ) {
                 Column(modifier = Modifier.weight(1f)) {
                   Text(
-                    text = device.label + if (device.id == viewModel.thisDeviceId) " \u2022 " + viewModel.t("this phone", "simu hii") else "",
+                    text = device.label + if (device.id == viewModel.thisDeviceId) " • " + viewModel.t("this phone", "simu hii") else "",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                   )
@@ -427,7 +410,6 @@ fun ProfileScreen(
       }
     }
 
-    // My data (real accounts only)
     if (!isDemo) {
       item {
         Text(
@@ -478,7 +460,6 @@ fun ProfileScreen(
       }
     }
 
-    // Sign out (wipes this phone's offline copies)
     item {
       Button(
         onClick = { viewModel.signOut() },
