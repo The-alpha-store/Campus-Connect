@@ -97,8 +97,8 @@ object DeadlineTime {
     val dayDiff = epochDay(now) - epochDay(millis)
     val minutes = (now - millis) / 60_000
     return when {
-      !dateOnly && minutes in 0..0 -> if (swahili) "Sasa hivi" else "Just now"
-      !dateOnly && minutes in 1..59 -> if (swahili) "Dakika $minutes zilizopita" else "$minutes min ago"
+      !dateOnly && dayDiff == 0L && minutes in 0..0 -> if (swahili) "Sasa hivi" else "Just now"
+      !dateOnly && dayDiff == 0L && minutes in 1..59 -> if (swahili) "Dakika $minutes zilizopita" else "$minutes min ago"
       dayDiff == 0L -> if (dateOnly) (if (swahili) "Leo" else "Today") else (if (swahili) "Leo, $clock" else "Today, $clock")
       dayDiff == 1L -> if (dateOnly) (if (swahili) "Jana" else "Yesterday") else (if (swahili) "Jana, $clock" else "Yesterday, $clock")
       else -> {
