@@ -497,8 +497,7 @@ class CampusViewModel(
   // ---------- Campus maintenance and details ----------
 
   val campusMaintenance = repository.campusMaintenance
-  val universities = repository.catalog.universities
-
+  
   fun setCampusMaintenance(universityId: String, on: Boolean, note: String = "") {
     val ok = repository.setCampusMaintenance(universityId, on, note)
     showMessage(
