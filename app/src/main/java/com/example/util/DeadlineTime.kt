@@ -20,6 +20,10 @@ object DeadlineTime {
     isLenient = false
   }
 
+  private fun dayKey(millis: Long): Int =
+    SimpleDateFormat("yyyyMMdd", Locale.US).apply { timeZone = zone }
+      .format(Date(millis)).toInt()
+
   fun format(millis: Long): String = shown().format(Date(millis)) + " EAT"
 
   /** The moment a deadline text means, or null when the text is not in the app's format. */
@@ -84,8 +88,6 @@ object DeadlineTime {
       ?: runCatching { dateOnlyFormat().parse(body)?.time }.getOrNull()
   }
 
-  private fun epochDay(millis: Long): Long = (millis + zone.getOffset(millis)) / 86_400_000L
-
   /**
    * A stamp in friendly, always-true words: "Just now", "12 min ago", "Today, 10:45", "Yesterday, 14:20",
    * "18 Oct, 09:15" or, from another year, "18 Oct 2025". Text that is not a stamp is returned unchanged.
@@ -94,13 +96,13 @@ object DeadlineTime {
     val millis = parseStamp(text) ?: return text
     val dateOnly = !text.contains(':')
     val clock = SimpleDateFormat("HH:mm", Locale.ENGLISH).apply { timeZone = zone }.format(Date(millis))
-    val dayDiff = epochDay(now) - epochDay(millis)
+    val dayDiff = dayKey(now) - dayKey(millis)
     val minutes = (now - millis) / 60_000
     return when {
       !dateOnly && minutes in 0..0 -> if (swahili) "Sasa hivi" else "Just now"
       !dateOnly && minutes in 1..59 -> if (swahili) "Dakika $minutes zilizopita" else "$minutes min ago"
-      dayDiff == 0L -> if (dateOnly) (if (swahili) "Leo" else "Today") else (if (swahili) "Leo, $clock" else "Today, $clock")
-      dayDiff == 1L -> if (dateOnly) (if (swahili) "Jana" else "Yesterday") else (if (swahili) "Jana, $clock" else "Yesterday, $clock")
+      dayDiff == 0 -> if (dateOnly) (if (swahili) "Leo" else "Today") else (if (swahili) "Leo, $clock" else "Today, $clock")
+      dayDiff == 1 -> if (dateOnly) (if (swahili) "Jana" else "Yesterday") else (if (swahili) "Jana, $clock" else "Yesterday, $clock")
       else -> {
         val sameYear = Calendar.getInstance(zone).apply { timeInMillis = millis }.get(Calendar.YEAR) ==
           Calendar.getInstance(zone).apply { timeInMillis = now }.get(Calendar.YEAR)
